@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <string.h>
+
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
