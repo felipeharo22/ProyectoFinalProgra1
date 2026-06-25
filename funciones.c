@@ -47,10 +47,28 @@ int menu(){
 void inicializarZonas(ZonaUrbana *ciudad) {
     for (int i = 0; i < 5; i++) {
         ciudad[i].id_zona = i + 1;
+        
+        // Limpiamos el historial
         ciudad[i].co2_hist = 0.0;
         ciudad[i].so2_hist = 0.0;
         ciudad[i].no2_hist = 0.0;
         ciudad[i].pm25_hist = 0.0;
+
+        // Limpiamos los datos actuales
+        ciudad[i].temperatura = 0.0;
+        ciudad[i].velocidad_viento = 0.0;
+        ciudad[i].humedad = 0.0;
+        
+        ciudad[i].co2 = 0.0;
+        ciudad[i].so2 = 0.0;
+        ciudad[i].no2 = 0.0;
+        ciudad[i].pm2_5 = 0.0;
+
+        // Limpiamos las predicciones
+        ciudad[i].pred_co2 = 0.0;
+        ciudad[i].pred_so2 = 0.0;
+        ciudad[i].pred_no2 = 0.0;
+        ciudad[i].pred_pm25 = 0.0;
     }
 }
 
@@ -104,4 +122,191 @@ void cargarPromediosHistoricos(ZonaUrbana *ciudad) {
         }
     }
     printf("---------------------------------------\n");
+}
+
+void predecirNivelesFuturos(ZonaUrbana *ciudad) {
+    printf("\n--- CALCULANDO PREDICCIONES PARA LAS PROXIMAS 24 HORAS ---\n");
+
+    for (int i = 0; i < 5; i++) {
+        // 1. Cálculo Base: Promedio Ponderado
+        // Le damos 60% de importancia a la contaminación de hoy, y 40% al historial de 30 días.
+        float peso_actual = 0.60;
+        float peso_hist = 0.40;
+
+        // Validación de seguridad por si no hay historial previo
+        if (ciudad[i].pm25_hist == 0) { 
+            peso_actual = 1.0;
+            peso_hist = 0.0;
+        }
+
+        // Aplicamos la fórmula matemática para los 4 contaminantes
+        ciudad[i].pred_co2 = (ciudad[i].co2 * peso_actual) + (ciudad[i].co2_hist * peso_hist);
+        ciudad[i].pred_so2 = (ciudad[i].so2 * peso_actual) + (ciudad[i].so2_hist * peso_hist);
+        ciudad[i].pred_no2 = (ciudad[i].no2 * peso_actual) + (ciudad[i].no2_hist * peso_hist);
+        ciudad[i].pred_pm25 = (ciudad[i].pm2_5 * peso_actual) + (ciudad[i].pm25_hist * peso_hist);
+
+        // 2. Modificadores Climáticos (El motor de predicción ambiental)
+        
+        // Factor Viento: Si el viento supera los 15 km/h, actúa como limpiador natural.
+        if (ciudad[i].velocidad_viento > 15.0) {
+            ciudad[i].pred_co2 *= 0.90;  // Disminuye la predicción un 10%
+            ciudad[i].pred_so2 *= 0.90;
+            ciudad[i].pred_no2 *= 0.85;  // NO2 y PM2.5 son más ligeros, se dispersan un 15%
+            ciudad[i].pred_pm25 *= 0.85; 
+        } 
+        // Factor Estancamiento: Viento menor a 5 km/h concentra los gases
+        else if (ciudad[i].velocidad_viento < 5.0) {
+            ciudad[i].pred_co2 *= 1.05;  // Aumenta un 5%
+            ciudad[i].pred_pm25 *= 1.15; // Las partículas sólidas aumentan un 15%
+        }
+
+        // Factor Temperatura: Más de 28 grados favorece la formación de ozono y retiene gases pesados
+        if (ciudad[i].temperatura > 28.0) {
+            ciudad[i].pred_so2 *= 1.10; // Aumenta un 10%
+            ciudad[i].pred_no2 *= 1.10;
+        }
+
+        // Factor Humedad/Lluvia: Humedad mayor al 80% indica alta probabilidad de lluvia, la cual "lava" el PM2.5
+        if (ciudad[i].humedad > 80.0) {
+            ciudad[i].pred_pm25 *= 0.80; // Reduce un 20%
+        }
+
+        printf("Zona %d: Prediccion calculada exitosamente.\n", ciudad[i].id_zona);
+    }
+    printf("----------------------------------------------------------\n");
+}
+
+void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
+    printf("\n--- ALERTAS Y RECOMENDACIONES PREVENTIVAS (24 HORAS) ---\n");
+    int alertas_generadas = 0; // Un contador para saber si la ciudad está a salvo
+
+    for (int i = 0; i < 5; i++) {
+        int zona_con_alerta = 0; // Bandera para imprimir el encabezado de la zona solo una vez
+
+        // Evaluamos PM2.5 (Afecta vías respiratorias - Riesgo Social/Salud)
+        if (ciudad[i].pred_pm25 > LIMITE_PM25) {
+            if (zona_con_alerta == 0) {
+                printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
+                zona_con_alerta = 1;
+            }
+            printf("  - PM2.5 critico (%.2f). RECOMENDACION: Suspender actividades fisicas al aire libre y obligar el uso de mascarillas en poblacion vulnerable.\n", ciudad[i].pred_pm25);
+        }
+
+        // Evaluamos NO2 y SO2 (Gases de combustión - Riesgo Vehicular/Industrial)
+        if (ciudad[i].pred_no2 > LIMITE_NO2 || ciudad[i].pred_so2 > LIMITE_SO2) {
+            if (zona_con_alerta == 0) {
+                printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
+                zona_con_alerta = 1;
+            }
+            printf("  - Gases toxicos elevados (NO2/SO2). RECOMENDACION: Implementar restriccion vehicular severa (Pico y Placa ambiental) y pausar operaciones industriales locales.\n");
+        }
+
+        // Evaluamos CO2 (Efecto invernadero - Riesgo Global/Ambiental)
+        if (ciudad[i].pred_co2 > LIMITE_CO2) {
+            if (zona_con_alerta == 0) {
+                printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
+                zona_con_alerta = 1;
+            }
+            printf("  - CO2 excede la norma (%.2f). RECOMENDACION: Promover teletrabajo masivo para reducir la huella de carbono de la zona en las proximas 24h.\n", ciudad[i].pred_co2);
+        }
+
+        // Si la bandera cambió a 1, significa que hubo al menos un problema en esta zona
+        if (zona_con_alerta == 1) {
+            alertas_generadas++;
+        }
+    }
+
+    // Si el ciclo termina y el contador sigue en 0, damos buenas noticias
+    if (alertas_generadas == 0) {
+        printf("\n✅ Todo en orden. No se preve superar los limites de la OMS en ninguna zona.\n");
+    }
+    printf("--------------------------------------------------------\n");
+}
+
+void exportarReporteFinal(ZonaUrbana *ciudad) {
+    // Abrimos un archivo nuevo en modo escritura ("w" de write)
+    FILE *archivo = fopen("reporte_contaminacion.txt", "w");
+    
+    // Validación de seguridad por si el disco duro está lleno o sin permisos
+    if (archivo == NULL) {
+        printf("\n[ERROR] No se pudo crear el archivo de reporte.\n");
+        return;
+    }
+
+    // Comenzamos a escribir en el archivo usando fprintf
+    fprintf(archivo, "========================================================\n");
+    fprintf(archivo, "      REPORTE OFICIAL DE CONTAMINACION URBANA\n");
+    fprintf(archivo, "========================================================\n\n");
+
+    for (int i = 0; i < 5; i++) {
+        fprintf(archivo, "--- ZONA %d ---\n", ciudad[i].id_zona);
+        
+        fprintf(archivo, "1. PROMEDIOS HISTORICOS (Ultimos 30 dias):\n");
+        fprintf(archivo, "   CO2: %.2f | SO2: %.2f | NO2: %.2f | PM2.5: %.2f\n\n", 
+                ciudad[i].co2_hist, ciudad[i].so2_hist, ciudad[i].no2_hist, ciudad[i].pm25_hist);
+        
+        fprintf(archivo, "2. CONDICIONES ACTUALES INGRESADAS:\n");
+        fprintf(archivo, "   Clima -> Temp: %.1f C | Viento: %.1f km/h | Humedad: %.1f%%\n", 
+                ciudad[i].temperatura, ciudad[i].velocidad_viento, ciudad[i].humedad);
+        fprintf(archivo, "   Gases -> CO2: %.2f | SO2: %.2f | NO2: %.2f | PM2.5: %.2f\n\n", 
+                ciudad[i].co2, ciudad[i].so2, ciudad[i].no2, ciudad[i].pm2_5);
+        
+        fprintf(archivo, "3. PREDICCION CALCULADA (24 Horas):\n");
+        fprintf(archivo, "   CO2: %.2f | SO2: %.2f | NO2: %.2f | PM2.5: %.2f\n", 
+                ciudad[i].pred_co2, ciudad[i].pred_so2, ciudad[i].pred_no2, ciudad[i].pred_pm25);
+        
+        fprintf(archivo, "--------------------------------------------------------\n");
+    }
+
+    fprintf(archivo, "Fin del reporte generado por el Sistema de Gestion.\n");
+    
+    // Es obligatorio cerrar el archivo para que los cambios se guarden en el disco
+    fclose(archivo);
+    
+    // Mensaje en consola para que el usuario sepa que funcionó
+    printf("\n✅ Reporte exportado exitosamente en 'reporte_contaminacion.txt'.\n");
+}
+
+void ingresarDatosActuales(ZonaUrbana *ciudad) {
+    printf("\n--- INGRESO DE DATOS ACTUALES ---\n");
+    for (int i = 0; i < 5; i++) {
+        printf("\n--- ZONA %d ---\n", ciudad[i].id_zona);
+        
+        printf("Temperatura (C): ");
+        ciudad[i].temperatura = validarFloatRango(-10.0, 55.0);
+        
+        printf("Velocidad del viento (km/h): ");
+        ciudad[i].velocidad_viento = validarFloatRango(0.0, 150.0);
+        
+        printf("Humedad (%%): ");
+        ciudad[i].humedad = validarFloatRango(0.0, 100.0);
+
+        printf("Nivel de CO2: ");
+        ciudad[i].co2 = validarFloatRango(0.0, 5000.0);
+        
+        printf("Nivel de SO2: ");
+        ciudad[i].so2 = validarFloatRango(0.0, 1000.0);
+        
+        printf("Nivel de NO2: ");
+        ciudad[i].no2 = validarFloatRango(0.0, 1000.0);
+        
+        printf("Nivel de PM2.5: ");
+        ciudad[i].pm2_5 = validarFloatRango(0.0, 1000.0);
+    }
+    printf("\n✅ Datos ingresados correctamente para todas las zonas.\n");
+}
+
+void evaluarContaminacionActual(ZonaUrbana *ciudad) {
+    printf("\n--- EVALUACION DE CALIDAD DEL AIRE ACTUAL ---\n");
+    for (int i = 0; i < 5; i++) {
+        printf("Zona %d: ", ciudad[i].id_zona);
+        
+        if (ciudad[i].co2 > LIMITE_CO2 || ciudad[i].so2 > LIMITE_SO2 || 
+            ciudad[i].no2 > LIMITE_NO2 || ciudad[i].pm2_5 > LIMITE_PM25) {
+            printf("[!] ADVERTENCIA: Se superan los limites de la OMS.\n");
+        } else {
+            printf("[OK] Niveles dentro de los rangos aceptables.\n");
+        }
+    }
+    printf("-----------------------------------------------\n");
 }
