@@ -51,5 +51,6 @@ void generarAlertasYRecomendaciones(ZonaUrbana *ciudad);
 void exportarReporteFinal(ZonaUrbana *ciudad);
 void ingresarDatosActuales(ZonaUrbana *ciudad);
 void evaluarContaminacionActual(ZonaUrbana *ciudad);
-
+void guardarEstadoSistema(ZonaUrbana *ciudad);
+int cargarEstadoSistema(ZonaUrbana *ciudad);
 #endif

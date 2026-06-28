@@ -6,10 +6,10 @@
 int main() {
     ZonaUrbana ciudad[5]; // Se declaran las zonas requeridas
     int opc1 = 0;
-    int opc2 = 0;
-    
+       
     // NUEVA BANDERA LÓGICA (0 = No ingresados, 1 = Ingresados)
-    int datos_ingresados = 0; 
+    int datos_ingresados = 0;
+    int predicciones_actualizadas = 0;
 
     // Preparamos la memoria con esta funcion
     inicializarZonas(ciudad);
@@ -17,15 +17,25 @@ int main() {
     // Cargamos el historial al iniciar el programa
     printf("Iniciando Sistema de Monitoreo...\n");
     cargarPromediosHistoricos(ciudad);
+    
+    // CAMBIO AQUÍ: Intentar cargar persistencia al iniciar
+    if (cargarEstadoSistema(ciudad)) {
+        printf("\n[i] Se han restaurado los datos actuales y predicciones del ultimo estado guardado.\n");
+        datos_ingresados = 1;
+        predicciones_actualizadas = 1;// Si se restaura con éxito, ambos están al día
+    } else {
+        printf("\n[i] No se encontraron respaldos previos. Inicie ingresando datos (Opcion 1).\n");
+    }
 
     do {
         opc1 = menu();
-
         switch(opc1) {
             case 1:
                 ingresarDatosActuales(ciudad);
+                guardarEstadoSistema(ciudad);
                 // Activamos la bandera porque el usuario ya hizo su trabajo
-                datos_ingresados = 1; 
+                datos_ingresados = 1;
+                predicciones_actualizadas = 0;//Si los datos cambian, las predicciones deben recalcularse
                 break;
             case 2:
                 if (datos_ingresados == 0) {
@@ -40,11 +50,15 @@ int main() {
                 } else {
                     predecirNivelesFuturos(ciudad);
                     generarAlertasYRecomendaciones(ciudad);
+                    guardarEstadoSistema(ciudad);//guarda predicciones calculadas
+                    predicciones_actualizadas = 1;
                 }
                 break;
             case 4:
                 if (datos_ingresados == 0) {
                     printf("\n[!] ACCESO DENEGADO: Primero debe ingresar los datos actuales (Opcion 1).\n");
+                } else if (predicciones_actualizadas == 0) {
+                    printf("\n[!] ACCESO DENEGADO: Debe calcular las nuevas predicciones (Opcion 3) antes de exportar el reporte.\n");
                 } else {
                     exportarReporteFinal(ciudad);
                 }
@@ -56,7 +70,7 @@ int main() {
                 printf("\nError: Opcion no valida.\n");
         }
         
-        // Solo pregunta si desea continuar si el usuario no eligió Salir (5)
+        /* Solo pregunta si desea continuar si el usuario no eligió Salir (5)
         if (opc1 != 5) {
             printf("\n¿Desea ingresar otra opcion? 1.Si 2.No\n");
             printf(">> ");
@@ -66,7 +80,7 @@ int main() {
                 printf("\nCerrando el sistema...\n");
                 opc1 = 5; // Forzamos la salida del bucle principal
             }
-        }
+        }*/
 
     } while(opc1 != 5);
 

@@ -4,12 +4,12 @@
 #include "funciones.h"
 
 
-void leerCadena(char *cadena, int n){
+/*void leerCadena(char *cadena, int n){
     int len;
     fgets(cadena,n,stdin);
     len = strlen(cadena) - 1;
     cadena[len]='\0';
-}
+}*/
 
 
 float validarFloatRango(float a, float b){
@@ -28,7 +28,7 @@ float validarFloatRango(float a, float b){
 
 int menu(){
     printf("\n==================================================\n");
-        printf("SISTEMA DE GESTION Y PREDICCION DE CONTAMINACION\n");
+        printf(" SISTEMA DE GESTION Y PREDICCION DE CONTAMINACION\n");
         printf("==================================================\n");
         printf("1. Ingresar datos actuales del clima y contaminacion\n");
         printf("2. Evaluar situacion actual de las zonas\n");
@@ -102,7 +102,9 @@ void cargarPromediosHistoricos(ZonaUrbana *ciudad) {
     fclose(archivo); // Cerramos el archivo de la memoria
 
     // Cálculo de promedios y comparación
-    printf("\n--- RESULTADOS HISTORICOS RECIENTES ---\n");
+    printf("\n===========================================================================\n");
+    printf("--------------------- RESULTADOS HISTORICOS RECIENTES ---------------------\n");
+    printf("===========================================================================\n");
     for (int i = 0; i < 5; i++) {
         if (dias_registrados[i] > 0) {
             // Se divide la suma total para los días registrados (idealmente 30)
@@ -115,18 +117,29 @@ void cargarPromediosHistoricos(ZonaUrbana *ciudad) {
                    ciudad[i].id_zona, ciudad[i].co2_hist, ciudad[i].so2_hist, ciudad[i].no2_hist, ciudad[i].pm25_hist);
 
             // Verificación con los límites de la OMS
-            if(ciudad[i].pm25_hist > LIMITE_PM25) {
+            if (ciudad[i].co2_hist > LIMITE_CO2) {
+                printf("  -> [ALERTA HISTORICA] La Zona %d supera el limite de CO2 (ASHRAE/OMS).\n", ciudad[i].id_zona);
+            }
+            if (ciudad[i].so2_hist > LIMITE_SO2) {
+                printf("  -> [ALERTA HISTORICA] La Zona %d supera el limite de SO2 de la OMS.\n", ciudad[i].id_zona);
+            }
+            if (ciudad[i].no2_hist > LIMITE_NO2) {
+                printf("  -> [ALERTA HISTORICA] La Zona %d supera el limite de NO2 de la OMS.\n", ciudad[i].id_zona);
+            }
+            if (ciudad[i].pm25_hist > LIMITE_PM25) {
                 printf("  -> [ALERTA HISTORICA] La Zona %d supera el limite de PM2.5 de la OMS.\n", ciudad[i].id_zona);
             }
         } else {
             printf("Zona %d | Sin datos historicos registrados.\n", i + 1);
         }
     }
-    printf("---------------------------------------\n");
+    printf("===========================================================================\n");
 }
 
 void predecirNivelesFuturos(ZonaUrbana *ciudad) {
-    printf("\n--- CALCULANDO PREDICCIONES PARA LAS PROXIMAS 24 HORAS ---\n");
+    printf("\n======================================================\n");
+    printf("--CALCULANDO PREDICCIONES PARA LAS PROXIMAS 24 HORAS--\n");
+    printf("======================================================\n");
 
     for (int i = 0; i < 5; i++) {
         // 1. Cálculo Base: Promedio Ponderado
@@ -178,7 +191,9 @@ void predecirNivelesFuturos(ZonaUrbana *ciudad) {
 }
 
 void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
-    printf("\n--- ALERTAS Y RECOMENDACIONES PREVENTIVAS (24 HORAS) ---\n");
+    printf("\n=======================================================\n");
+    printf("---ALERTAS Y RECOMENDACIONES PREVENTIVAS (24 HORAS)---\n");
+    printf("=======================================================\n");
     int alertas_generadas = 0; // Un contador para saber si la ciudad está a salvo
 
     for (int i = 0; i < 5; i++) {
@@ -190,7 +205,8 @@ void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
                 printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
                 zona_con_alerta = 1;
             }
-            printf("  - PM2.5 critico (%.2f). RECOMENDACION: Suspender actividades fisicas al aire libre y obligar el uso de mascarillas en poblacion vulnerable.\n", ciudad[i].pred_pm25);
+            printf("  - PM2.5 critico (%.2f).\n", ciudad[i].pred_pm25);
+            printf("  RECOMENDACION: Suspender actividades fisicas al aire libre y obligar el uso de mascarillas en poblacion vulnerable.\n");
         }
 
         // Evaluamos NO2 y SO2 (Gases de combustión - Riesgo Vehicular/Industrial)
@@ -199,7 +215,8 @@ void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
                 printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
                 zona_con_alerta = 1;
             }
-            printf("  - Gases toxicos elevados (NO2/SO2). RECOMENDACION: Implementar restriccion vehicular severa (Pico y Placa ambiental) y pausar operaciones industriales locales.\n");
+            printf("  - Gases toxicos elevados (NO2/SO2). \n");
+            printf("  RECOMENDACION: Implementar restriccion vehicular severa (Pico y Placa ambiental) y pausar operaciones industriales locales.\n");
         }
 
         // Evaluamos CO2 (Efecto invernadero - Riesgo Global/Ambiental)
@@ -208,7 +225,8 @@ void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
                 printf("\n[!] ALERTA ROJA EN ZONA %d:\n", ciudad[i].id_zona);
                 zona_con_alerta = 1;
             }
-            printf("  - CO2 excede la norma (%.2f). RECOMENDACION: Promover teletrabajo masivo para reducir la huella de carbono de la zona en las proximas 24h.\n", ciudad[i].pred_co2);
+            printf("  - CO2 excede la norma (%.2f). \n", ciudad[i].pred_co2);
+            printf("  RECOMENDACION: Promover teletrabajo masivo para reducir la huella de carbono de la zona en las proximas 24h.\n");
         }
 
         // Si la bandera cambió a 1, significa que hubo al menos un problema en esta zona
@@ -219,9 +237,9 @@ void generarAlertasYRecomendaciones(ZonaUrbana *ciudad) {
 
     // Si el ciclo termina y el contador sigue en 0, damos buenas noticias
     if (alertas_generadas == 0) {
-        printf("\n✅ Todo en orden. No se preve superar los limites de la OMS en ninguna zona.\n");
+        printf("\nTodo en orden. No se preve superar los limites de la OMS en ninguna zona.\n\n");
     }
-    printf("--------------------------------------------------------\n");
+
 }
 
 void exportarReporteFinal(ZonaUrbana *ciudad) {
@@ -235,8 +253,8 @@ void exportarReporteFinal(ZonaUrbana *ciudad) {
     }
 
     // Comenzamos a escribir en el archivo usando fprintf
-    fprintf(archivo, "========================================================\n");
-    fprintf(archivo, "      REPORTE OFICIAL DE CONTAMINACION URBANA\n");
+    fprintf(archivo, "\n========================================================\n");
+    fprintf(archivo, "--------REPORTE OFICIAL DE CONTAMINACION URBANA--------\n");
     fprintf(archivo, "========================================================\n\n");
 
     for (int i = 0; i < 5; i++) {
@@ -265,11 +283,14 @@ void exportarReporteFinal(ZonaUrbana *ciudad) {
     fclose(archivo);
     
     // Mensaje en consola para que el usuario sepa que funcionó
-    printf("\n✅ Reporte exportado exitosamente en 'reporte_contaminacion.txt'.\n");
+    printf("\nReporte exportado exitosamente en 'reporte_contaminacion.txt'.\n");
 }
 
 void ingresarDatosActuales(ZonaUrbana *ciudad) {
-    printf("\n--- INGRESO DE DATOS ACTUALES ---\n");
+    printf("\n=================================\n");
+    printf("--- INGRESO DE DATOS ACTUALES ---\n");
+    printf("=================================\n");
+
     for (int i = 0; i < 5; i++) {
         printf("\n--- ZONA %d ---\n", ciudad[i].id_zona);
         
@@ -294,20 +315,77 @@ void ingresarDatosActuales(ZonaUrbana *ciudad) {
         printf("Nivel de PM2.5: ");
         ciudad[i].pm2_5 = validarFloatRango(0.0, 1000.0);
     }
-    printf("\n✅ Datos ingresados correctamente para todas las zonas.\n");
+    printf("\nDatos ingresados correctamente para todas las zonas.\n");
+    //Se borro emoji de "check"
 }
 
 void evaluarContaminacionActual(ZonaUrbana *ciudad) {
-    printf("\n--- EVALUACION DE CALIDAD DEL AIRE ACTUAL ---\n");
+    printf("\n===================================================\n");
+    printf("----- EVALUACION DE CONTAMINACION ACTUAL (24h) -----\n");
+    printf("===================================================\n");
     for (int i = 0; i < 5; i++) {
-        printf("Zona %d: ", ciudad[i].id_zona);
-        
-        if (ciudad[i].co2 > LIMITE_CO2 || ciudad[i].so2 > LIMITE_SO2 || 
-            ciudad[i].no2 > LIMITE_NO2 || ciudad[i].pm2_5 > LIMITE_PM25) {
-            printf("[!] ADVERTENCIA: Se superan los limites de la OMS.\n");
+        int excede_limite = 0;
+        printf("Zona %d: \n", ciudad[i].id_zona);
+
+        if (ciudad[i].co2 > LIMITE_CO2) {
+            printf("-CO2 excede el limite (%.2f > %.2f). \n", ciudad[i].co2, LIMITE_CO2);
+            excede_limite = 1;
+        }
+        if (ciudad[i].so2 > LIMITE_SO2) {
+            printf("-SO2 excede el limite (%.2f > %.2f). \n", ciudad[i].so2, LIMITE_SO2);
+            excede_limite = 1;
+        }
+        if (ciudad[i].no2 > LIMITE_NO2) {
+            printf("-NO2 excede el limite (%.2f > %.2f). \n", ciudad[i].no2, LIMITE_NO2);
+            excede_limite = 1;
+        }
+        if (ciudad[i].pm2_5 > LIMITE_PM25) {
+            printf("-PM2.5 excede el limite (%.2f > %.2f). \n", ciudad[i].pm2_5, LIMITE_PM25);
+            excede_limite = 1;
+        }
+
+        if (excede_limite) {
+            printf("[!] ADVERTENCIA: Se superan los limites de la OMS.\n---------------------------------------------------\n");
         } else {
-            printf("[OK] Niveles dentro de los rangos aceptables.\n");
+            printf("[OK] Niveles dentro de los rangos aceptables.\n---------------------------------------------------\n");
         }
     }
-    printf("-----------------------------------------------\n");
+}
+
+
+/*Recuperacion de archivo de guardado*/
+
+void guardarEstadoSistema(ZonaUrbana *ciudad) {
+    FILE *archivo = fopen("predicciones_guardadas.txt", "w");
+    if (archivo == NULL) {
+        printf("[!] Error al crear el archivo de persistencia.\n");
+        return;
+    }
+    for (int i = 0; i < 5; i++) {
+        fprintf(archivo, "%d %f %f %f %f %f %f %f %f %f %f %f\n",
+                ciudad[i].id_zona,
+                ciudad[i].temperatura, ciudad[i].velocidad_viento, ciudad[i].humedad,
+                ciudad[i].co2, ciudad[i].so2, ciudad[i].no2, ciudad[i].pm2_5,
+                ciudad[i].pred_co2, ciudad[i].pred_so2, ciudad[i].pred_no2, ciudad[i].pred_pm25);
+    }
+    fclose(archivo);
+}
+
+int cargarEstadoSistema(ZonaUrbana *ciudad) {
+    FILE *archivo = fopen("predicciones_guardadas.txt", "r");
+    if (archivo == NULL) {
+        return 0; // No existe archivo previo (primer inicio)
+    }
+    for (int i = 0; i < 5; i++) {
+        if (fscanf(archivo, "%d %f %f %f %f %f %f %f %f %f %f %f\n",
+                &ciudad[i].id_zona,
+                &ciudad[i].temperatura, &ciudad[i].velocidad_viento, &ciudad[i].humedad,
+                &ciudad[i].co2, &ciudad[i].so2, &ciudad[i].no2, &ciudad[i].pm2_5,
+                &ciudad[i].pred_co2, &ciudad[i].pred_so2, &ciudad[i].pred_no2, &ciudad[i].pred_pm25) != 12) {
+            fclose(archivo);
+            return 0; // Archivo corrupto o incompleto
+        }
+    }
+    fclose(archivo);
+    return 1; // Cargado con éxito
 }
