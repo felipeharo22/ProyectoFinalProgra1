@@ -31,7 +31,7 @@ int menu(){
     printf(" SISTEMA DE GESTION Y PREDICCION DE CONTAMINACION\n");
     printf("==================================================\n");
     printf("1. Ingresar datos actuales (Todas las zonas)\n");
-    printf("2. Editar datos de una zona especifica\n"); // <-- NUEVA OPCION
+    printf("2. Editar datos de una zona especifica\n");
     printf("3. Evaluar situacion actual de las zonas\n");
     printf("4. Predecir niveles (24h) y generar alertas\n");
     printf("5. Exportar reporte final\n");
@@ -142,7 +142,7 @@ void editarNivelesZona(ZonaUrbana *ciudad) {
     printf("--- EDITAR DATOS DE UNA ZONA ESPECIFICA ---\n");
     printf("===========================================\n");
     
-    printf("Ingrese el ID de la zona que desea editar (1 - 5):\n>> ");
+    printf("Ingrese la zona que desea editar (1 - 5):\n>> ");
     int id_zona = (int)validarFloatRango(1.0, 5.0);
     int i = id_zona - 1; // Convertimos el ID a índice del arreglo
 
