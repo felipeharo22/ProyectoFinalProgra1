@@ -44,6 +44,7 @@ typedef struct {
 // Prototipos de funciones
 void inicializarZonas(ZonaUrbana *ciudad);
 void cargarPromediosHistoricos(ZonaUrbana *ciudad);
+void editarNivelesZona(ZonaUrbana *ciudad);
 int menu();
 float validarFloatRango(float a, float b);
 void predecirNivelesFuturos(ZonaUrbana *ciudad);

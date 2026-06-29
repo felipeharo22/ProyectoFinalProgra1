@@ -28,19 +28,20 @@ float validarFloatRango(float a, float b){
 
 int menu(){
     printf("\n==================================================\n");
-        printf(" SISTEMA DE GESTION Y PREDICCION DE CONTAMINACION\n");
-        printf("==================================================\n");
-        printf("1. Ingresar datos actuales del clima y contaminacion\n");
-        printf("2. Evaluar situacion actual de las zonas\n");
-        printf("3. Predecir niveles (24h) y generar alertas\n");
-        printf("4. Exportar reporte final\n");
-        printf("5. Salir del sistema\n");
-        printf("==================================================\n");
-        printf(">> ");
-    int opc = validarFloatRango(1,5);
+    printf(" SISTEMA DE GESTION Y PREDICCION DE CONTAMINACION\n");
+    printf("==================================================\n");
+    printf("1. Ingresar datos actuales (Todas las zonas)\n");
+    printf("2. Editar datos de una zona especifica\n"); // <-- NUEVA OPCION
+    printf("3. Evaluar situacion actual de las zonas\n");
+    printf("4. Predecir niveles (24h) y generar alertas\n");
+    printf("5. Exportar reporte final\n");
+    printf("6. Salir del sistema\n");
+    printf("==================================================\n");
+    printf(">> ");
+    
+    int opc = validarFloatRango(1, 6);
     return opc;
 }
-
 
 
 
@@ -135,6 +136,44 @@ void cargarPromediosHistoricos(ZonaUrbana *ciudad) {
     }
     printf("===========================================================================\n");
 }
+
+void editarNivelesZona(ZonaUrbana *ciudad) {
+    printf("\n===========================================\n");
+    printf("--- EDITAR DATOS DE UNA ZONA ESPECIFICA ---\n");
+    printf("===========================================\n");
+    
+    printf("Ingrese el ID de la zona que desea editar (1 - 5):\n>> ");
+    int id_zona = (int)validarFloatRango(1.0, 5.0);
+    int i = id_zona - 1; // Convertimos el ID a índice del arreglo
+
+    printf("\n--- EDITANDO ZONA %d ---\n", ciudad[i].id_zona);
+    
+    // Modificadores climáticos
+    printf("Temperatura (C) actual [%.1f]: ", ciudad[i].temperatura);
+    ciudad[i].temperatura = validarFloatRango(-10.0, 55.0);
+    
+    printf("Velocidad del viento (km/h) actual [%.1f]: ", ciudad[i].velocidad_viento);
+    ciudad[i].velocidad_viento = validarFloatRango(0.0, 150.0);
+    
+    printf("Humedad (%%) actual [%.1f]: ", ciudad[i].humedad);
+    ciudad[i].humedad = validarFloatRango(0.0, 100.0);
+
+    // Contaminantes
+    printf("Nivel de CO2 actual [%.2f]: ", ciudad[i].co2);
+    ciudad[i].co2 = validarFloatRango(0.0, 5000.0);
+    
+    printf("Nivel de SO2 actual [%.2f]: ", ciudad[i].so2);
+    ciudad[i].so2 = validarFloatRango(0.0, 1000.0);
+    
+    printf("Nivel de NO2 actual [%.2f]: ", ciudad[i].no2);
+    ciudad[i].no2 = validarFloatRango(0.0, 1000.0);
+    
+    printf("Nivel de PM2.5 actual [%.2f]: ", ciudad[i].pm2_5);
+    ciudad[i].pm2_5 = validarFloatRango(0.0, 1000.0);
+
+    printf("\n[EXITO] Datos de la Zona %d actualizados correctamente.\n", ciudad[i].id_zona);
+}
+
 
 void predecirNivelesFuturos(ZonaUrbana *ciudad) {
     printf("\n======================================================\n");

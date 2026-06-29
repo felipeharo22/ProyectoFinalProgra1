@@ -33,37 +33,45 @@ int main() {
             case 1:
                 ingresarDatosActuales(ciudad);
                 guardarEstadoSistema(ciudad);
-                // Activamos la bandera porque el usuario ya hizo su trabajo
                 datos_ingresados = 1;
-                predicciones_actualizadas = 0;//Si los datos cambian, las predicciones deben recalcularse
+                predicciones_actualizadas = 0; 
                 break;
-            case 2:
+            case 2: // <-- NUEVO CASE DE EDICION
                 if (datos_ingresados == 0) {
-                    printf("\n[!] ACCESO DENEGADO: Primero debe ingresar los datos actuales (Opcion 1).\n");
+                    printf("\n[!] ACCESO DENEGADO: Primero debe ingresar los datos iniciales (Opcion 1).\n");
+                } else {
+                    editarNivelesZona(ciudad);
+                    guardarEstadoSistema(ciudad); // Guardamos tras editar
+                    predicciones_actualizadas = 0; // Se invalidan las predicciones viejas
+                }
+                break;
+            case 3: // Antiguo case 2
+                if (datos_ingresados == 0) {
+                    printf("\n[!] ACCESO DENEGADO: Faltan datos (Opcion 1).\n");
                 } else {
                     evaluarContaminacionActual(ciudad);
                 }
                 break;
-            case 3:
+            case 4: // Antiguo case 3
                 if (datos_ingresados == 0) {
-                    printf("\n[!] ACCESO DENEGADO: Primero debe ingresar los datos actuales (Opcion 1).\n");
+                    printf("\n[!] ACCESO DENEGADO: Faltan datos (Opcion 1).\n");
                 } else {
                     predecirNivelesFuturos(ciudad);
                     generarAlertasYRecomendaciones(ciudad);
-                    guardarEstadoSistema(ciudad);//guarda predicciones calculadas
+                    guardarEstadoSistema(ciudad);
                     predicciones_actualizadas = 1;
                 }
                 break;
-            case 4:
+            case 5: // Antiguo case 4
                 if (datos_ingresados == 0) {
-                    printf("\n[!] ACCESO DENEGADO: Primero debe ingresar los datos actuales (Opcion 1).\n");
+                    printf("\n[!] ACCESO DENEGADO: Faltan datos.\n");
                 } else if (predicciones_actualizadas == 0) {
-                    printf("\n[!] ACCESO DENEGADO: Debe calcular las nuevas predicciones (Opcion 3) antes de exportar el reporte.\n");
+                    printf("\n[!] ACCESO DENEGADO: Debe calcular nuevas predicciones (Opcion 4) antes de exportar.\n");
                 } else {
                     exportarReporteFinal(ciudad);
                 }
                 break;
-            case 5:
+            case 6: // Salida
                 printf("\nCerrando el sistema...\n");
                 break;
             default:
