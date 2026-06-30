@@ -186,12 +186,12 @@ void predecirNivelesFuturos(ZonaUrbana *ciudad) {
         float peso_actual = 0.60;
         float peso_hist = 0.40;
 
-        // Validación de seguridad por si no hay historial previo
-        if (ciudad[i].pm25_hist == 0) { 
-            peso_actual = 1.0;
-            peso_hist = 0.0;
-        }
-
+        // Validación de seguridad: Si falta el historial de CUALQUIER gas, usamos solo datos actuales
+    if (ciudad[i].co2_hist == 0.0 || ciudad[i].so2_hist == 0.0 || 
+    ciudad[i].no2_hist == 0.0 || ciudad[i].pm25_hist == 0.0) { 
+    peso_actual = 1.0;
+    peso_hist = 0.0;
+    }
         // Aplicamos la fórmula matemática para los 4 contaminantes
         ciudad[i].pred_co2 = (ciudad[i].co2 * peso_actual) + (ciudad[i].co2_hist * peso_hist);
         ciudad[i].pred_so2 = (ciudad[i].so2 * peso_actual) + (ciudad[i].so2_hist * peso_hist);
