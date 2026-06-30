@@ -213,11 +213,12 @@ void predecirNivelesFuturos(ZonaUrbana *ciudad) {
             ciudad[i].pred_pm25 *= 1.15; // Las partículas sólidas aumentan un 15%
         }
 
-        // Factor Temperatura: Más de 28 grados favorece la formación de ozono y retiene gases pesados
-        if (ciudad[i].temperatura > 28.0) {
-            ciudad[i].pred_so2 *= 1.10; // Aumenta un 10%
-            ciudad[i].pred_no2 *= 1.10;
-        }
+        
+        // Factor Temperatura: Mas de 28C acelera las reacciones fotoquimicas urbanas y concentra el SO2 y NO2
+    if (ciudad[i].temperatura > 28.0) {
+    ciudad[i].pred_so2 *= 1.10; 
+    ciudad[i].pred_no2 *= 1.10;
+    }
 
         // Factor Humedad/Lluvia: Humedad mayor al 80% indica alta probabilidad de lluvia, la cual "lava" el PM2.5
         if (ciudad[i].humedad > 80.0) {
