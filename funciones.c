@@ -417,7 +417,7 @@ int cargarEstadoSistema(ZonaUrbana *ciudad) {
         return 0; // No existe archivo previo (primer inicio)
     }
     for (int i = 0; i < 5; i++) {
-        if (fscanf(archivo, "%d %f %f %f %f %f %f %f %f %f %f %f\n",
+        if (fscanf(archivo, "%d %f %f %f %f %f %f %f %f %f %f %f",
                 &ciudad[i].id_zona,
                 &ciudad[i].temperatura, &ciudad[i].velocidad_viento, &ciudad[i].humedad,
                 &ciudad[i].co2, &ciudad[i].so2, &ciudad[i].no2, &ciudad[i].pm2_5,
