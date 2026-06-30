@@ -90,7 +90,7 @@ int main() {
             }
         }*/
 
-    } while(opc1 != 5);
+    } while(opc1 != 6);
 
     return 0;
 }
